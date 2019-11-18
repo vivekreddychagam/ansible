@@ -1,0 +1,21 @@
+---
+- hosts: test
+  tasks:
+    - name: checksum of localfile
+      shell: md5sum /root/apache-tomcat-9.0.27.tar.gz | awk '{print $1}'
+      register: local
+    - debug:
+          msg: "{{ local.stdout }}"
+
+    - get_url:
+          url: http://apachemirror.wuchna.com/tomcat/tomcat-9/v9.0.27/bin/apache-tomcat-9.0.27.tar.gz
+          dest: /tmp
+          force: yes
+    - name: checksum of localfile
+      shell: md5sum /tmp/apache-tomcat-9.0.27.tar.gz | awk '{print $1}'
+      register: artifact
+    - debug:
+          msg: "{{ artifact.stdout }}"
+    - name: Validating Checksum
+      shell: echo "Validations Passed"
+      when: local.stdout == artifact.stdout
